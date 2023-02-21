@@ -1,3 +1,5 @@
+package client;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -6,19 +8,20 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
+public class JunZiConnect {
 
-public class JunZiChannel {
+    private Channel channel;
 
+    private NioEventLoopGroup group;
 
-    public Channel getChannel(String host, Integer port) throws InterruptedException {
+    public void init(String host, Integer port){
 
         NioEventLoopGroup group = new NioEventLoopGroup();
         Bootstrap b = new Bootstrap();
         Channel ch =null;
         try{
             final JunziClientHandler junziClientHandler = new JunziClientHandler();
-            b
-                    .group(group)
+            b.group(group)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
@@ -31,19 +34,38 @@ public class JunZiChannel {
                     })
                     .option(ChannelOption.TCP_NODELAY, true)
                     .option(ChannelOption.SO_KEEPALIVE, true);
-                    //.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);
+            //.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);
 
-         ChannelFuture    future=b.connect(host,port).sync();
-         ch = future.channel();
+            ChannelFuture future=b.connect(host,port).sync();
+            ch = future.channel();
 
         }catch(Exception e){
-           e.printStackTrace();
+            e.printStackTrace();
         }finally{
             //group.shutdownGracefully().sync();
         }
         //f.channel().closeFuture().sync();
-        return ch;
+        this.channel =ch;
+        this.group=group;
     }
 
 
+
+
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
+
+    public NioEventLoopGroup getGroup() {
+        return group;
+    }
+
+    public void setGroup(NioEventLoopGroup group) {
+        this.group = group;
+    }
 }
